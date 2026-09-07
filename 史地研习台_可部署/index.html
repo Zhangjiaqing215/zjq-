@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f3ea">
+<title>史地研习台 · Historical Geography Workbench</title>
+<style>
+:root{
+  --bg:#f5f1e8;--panel:#fffdf8;--ink:#25231f;--muted:#777166;--line:#e5ded0;
+  --accent:#6d5a43;--accent2:#8a7356;--soft:#eee7da;--green:#637b68;--red:#a76d62;
+  --shadow:0 8px 28px rgba(65,52,35,.08);--radius:16px;
+}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+button,input,textarea,select{font:inherit} button{cursor:pointer}
+.app{min-height:100vh;display:flex}.sidebar{width:248px;background:#2e2b26;color:#eee9df;padding:22px 16px;position:fixed;inset:0 auto 0 0;z-index:10}
+.brand{padding:8px 10px 24px}.brand h1{font-family:Georgia,serif;font-size:22px;margin:0 0 6px}.brand p{font-size:12px;color:#aaa397;margin:0}
+.nav{display:grid;gap:6px}.nav button{border:0;background:transparent;color:#cfc7ba;text-align:left;padding:12px 14px;border-radius:11px}.nav button:hover,.nav button.active{background:#454039;color:#fff}
+.main{margin-left:248px;width:calc(100% - 248px);padding:24px 30px 50px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}
+.mobile-nav{display:none}.title h2{margin:0;font-family:Georgia,serif;font-weight:500}.title p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:var(--panel);padding:9px 13px;border-radius:10px;color:var(--ink)}.btn.primary{background:var(--accent);color:white;border-color:var(--accent)}
+.grid{display:grid;gap:16px}.kpis{grid-template-columns:repeat(4,1fr)}.two{grid-template-columns:1.25fr .75fr}.three{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}.card h3{font-size:15px;margin:0 0 14px}.kpi .label{font-size:12px;color:var(--muted)}.kpi .num{font-size:28px;margin-top:8px;font-family:Georgia,serif}.kpi .hint{font-size:11px;color:var(--muted);margin-top:5px}
+.section{display:none}.section.active{display:block}
+.list{display:grid;gap:10px}.item{border:1px solid var(--line);border-radius:12px;padding:13px;background:#fffdf9}.item-row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.item h4{margin:0 0 5px;font-size:14px}.meta{font-size:12px;color:var(--muted)}.tag{display:inline-block;padding:3px 8px;border-radius:20px;background:var(--soft);font-size:11px;margin:2px 3px 2px 0}.progress{height:7px;background:#e9e4da;border-radius:10px;overflow:hidden;margin-top:9px}.progress i{display:block;height:100%;background:var(--accent2);border-radius:10px}.quote{border-left:3px solid var(--accent2);padding:9px 12px;background:#f5f0e7;margin-top:9px;font-family:Georgia,serif;font-size:13px}.empty{padding:32px 12px;text-align:center;color:var(--muted);font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:500}
+.form{display:grid;gap:10px}.form.two-col{grid-template-columns:1fr 1fr}.form label{font-size:12px;color:var(--muted)}input,textarea,select{width:100%;border:1px solid var(--line);background:#fffefa;border-radius:9px;padding:9px;color:var(--ink);outline:none}textarea{min-height:100px;resize:vertical}
+.toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:14px}.search{max-width:280px}
+.modal{position:fixed;inset:0;background:rgba(30,27,23,.45);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal.open{display:flex}.modal-box{width:min(680px,100%);max-height:90vh;overflow:auto;background:var(--panel);border-radius:18px;padding:20px}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.close{border:0;background:var(--soft);border-radius:50%;width:32px;height:32px}
+.timeline{position:relative;padding-left:22px}.timeline:before{content:"";position:absolute;left:7px;top:5px;bottom:5px;width:1px;background:var(--line)}.tl{position:relative;margin:0 0 15px}.tl:before{content:"";position:absolute;left:-19px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--accent2)}.tl strong{font-size:12px}.tl p{margin:4px 0 0;font-size:12px;color:var(--muted)}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.cal-head,.day{font-size:11px;text-align:center}.day{min-height:58px;border:1px solid var(--line);border-radius:8px;padding:6px;background:#fffefa}.day.today{outline:2px solid var(--accent2)}.dot{display:block;width:5px;height:5px;border-radius:50%;background:var(--red);margin:5px auto}
+.bar{height:10px;background:#e8e2d7;border-radius:8px;overflow:hidden}.bar span{display:block;height:100%;background:var(--green)}
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;width:100%;padding:16px 15px 70px}.mobile-nav{display:flex;position:sticky;top:0;z-index:8;background:rgba(245,241,232,.95);backdrop-filter:blur(8px);padding:7px 0;margin:-16px 0 16px;overflow:auto;gap:6px}.mobile-nav button{white-space:nowrap;border:1px solid var(--line);background:var(--panel);border-radius:20px;padding:7px 11px;font-size:12px}.kpis{grid-template-columns:repeat(2,1fr)}.two,.three{grid-template-columns:1fr}.form.two-col{grid-template-columns:1fr}.topbar{align-items:flex-start}.actions{justify-content:flex-end}}
+@media(max-width:520px){.kpis{grid-template-columns:1fr 1fr}.topbar{display:block}.actions{margin-top:12px}.card{padding:14px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><h1>史地研习台</h1><p>Historical Geography Workbench</p></div>
+  <nav class="nav">
+    <button class="active" data-section="home">⌂ 总览</button>
+    <button data-section="reading">▤ 阅读记录</button>
+    <button data-section="schedule">◷ 日程记录</button>
+    <button data-section="research">⌘ 研究资料</button>
+    <button data-section="analytics">◒ 数据可视化</button>
+    <button data-section="settings">⚙ 数据与设置</button>
+  </nav>
+</aside>
+<main class="main">
+  <div class="mobile-nav" id="mobileNav">
+    <button data-section="home">总览</button><button data-section="reading">阅读</button><button data-section="schedule">日程</button><button data-section="research">研究资料</button><button data-section="analytics">统计</button><button data-section="settings">设置</button>
+  </div>
+  <header class="topbar">
+    <div class="title"><h2 id="pageTitle">研究总览</h2><p id="pageDesc">把阅读、研究资料、任务与研究成果放进同一张工作台。</p></div>
+    <div class="actions"><button class="btn primary" id="quickAdd">＋ 快速记录</button></div>
+  </header>
+
+  <section class="section active" id="home">
+    <div class="grid kpis">
+      <div class="card kpi"><div class="label">在读书目</div><div class="num" id="kBooks">0</div><div class="hint">含阅读进度</div></div>
+      <div class="card kpi"><div class="label">本周完成任务</div><div class="num" id="kTasks">0</div><div class="hint">学习 + 工作</div></div>
+      <div class="card kpi"><div class="label">史料条目</div><div class="num" id="kSources">0</div><div class="hint">按专题管理</div></div>
+      <div class="card kpi"><div class="label">研究专题</div><div class="num" id="kProjects">0</div><div class="hint">持续积累中</div></div>
+    </div>
+    <div class="grid two" style="margin-top:16px">
+      <div class="card"><h3>近期任务</h3><div id="homeTasks" class="list"></div></div>
+      <div class="card"><h3>阅读进程</h3><div id="homeBooks" class="list"></div></div>
+    </div>
+    <div class="grid two" style="margin-top:16px">
+      <div class="card"><h3>最近史料</h3><div id="homeSources" class="timeline"></div></div>
+      <div class="card"><h3>研究节奏</h3><div id="homeRhythm"></div></div>
+    </div>
+  </section>
+
+  <section class="section" id="reading">
+    <div class="toolbar"><div><button class="btn primary" onclick="openBook()">＋ 添加书籍</button><button class="btn" onclick="openQuote()">＋ 摘录</button></div><input class="search" id="bookSearch" placeholder="搜索书名、作者、标签"></div>
+    <div class="grid two"><div class="card"><h3>我的阅读</h3><div id="bookList" class="list"></div></div><div class="card"><h3>阅读汇总</h3><div id="bookSummary"></div></div></div>
+  </section>
+
+  <section class="section" id="schedule">
+    <div class="toolbar"><div><button class="btn primary" onclick="openTask()">＋ 添加任务</button></div><select id="taskFilter" style="max-width:150px"><option value="all">全部任务</option><option value="学习">学习</option><option value="工作">工作</option></select></div>
+    <div class="grid two"><div class="card"><h3>任务拆解与进度</h3><div id="taskList" class="list"></div></div><div class="card"><h3>日历 / DDL</h3><div id="calendar"></div></div></div>
+  </section>
+
+  <section class="section" id="research">
+    <div class="toolbar"><div><button class="btn primary" onclick="openProject()">＋ 新建专题</button><button class="btn" onclick="openSource()">＋ 添加专题史料</button></div></div>
+    <div class="grid two"><div class="card"><h3>研究专题</h3><div id="projectList" class="list"></div></div><div class="card"><h3>专题史料时间轴</h3><div id="sourceTimeline" class="timeline"></div></div></div>
+    <div class="card" style="margin-top:16px"><h3>专题史料库</h3><div style="overflow:auto"><table><thead><tr><th>时间</th><th>专题</th><th>史料</th><th>来源</th><th>备注</th></tr></thead><tbody id="sourceTable"></tbody></table></div></div>
+  </section>
+
+  <section class="section" id="analytics">
+    <div class="grid three">
+      <div class="card"><h3>阅读完成度</h3><div id="readingChart"></div></div>
+      <div class="card"><h3>任务结构</h3><div id="taskChart"></div></div>
+      <div class="card"><h3>研究积累</h3><div id="researchChart"></div></div>
+    </div>
+    <div class="card" style="margin-top:16px"><h3>建议的长期指标</h3><div class="grid three"><div><b>阅读</b><p class="meta">每月读完本数、平均评分、摘录数量、专题关联率</p></div><div><b>研究</b><p class="meta">史料条目、专题数、时间跨度、来源类型</p></div><div><b>执行</b><p class="meta">任务完成率、延期率、学习/工作投入比例</p></div></div></div>
+  </section>
+
+  <section class="section" id="settings">
+    <div class="card"><h3>本地数据</h3><p class="meta">当前原型使用浏览器 localStorage 保存数据。适合先体验信息架构；正式版本建议接入云端数据库，实现手机、平板、电脑同步。</p><div class="actions" style="margin-top:12px"><button class="btn" onclick="exportData()">导出 JSON</button><button class="btn" onclick="document.getElementById('importFile').click()">导入 JSON</button><button class="btn" onclick="resetData()">恢复示例数据</button><input id="importFile" type="file" accept=".json" hidden></div></div>
+  </section>
+</main>
+</div>
+
+<div class="modal" id="modal"><div class="modal-box"><div class="modal-head"><h3 id="modalTitle" style="margin:0"></h3><button class="close" onclick="closeModal()">×</button></div><div id="modalBody"></div></div></div>
+
+<script>
+const KEY="history_geo_workbench_v1";
+const demo={
+ books:[],
+ tasks:[],
+ projects:[],
+ sources:[]
+}
+const INIT_KEY="history_geo_workbench_initialized_v2";
+let data;
+if(!sessionStorage.getItem(INIT_KEY)){
+  localStorage.removeItem(KEY);
+  sessionStorage.setItem(INIT_KEY,"1");
+}
+data=JSON.parse(localStorage.getItem(KEY)||"null")||JSON.parse(JSON.stringify(demo));
+
+function esc(v){
+  return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function readingMeta(b){
+  b.topics = Array.isArray(b.topics)?b.topics:(b.topic?[b.topic]:[]);
+  b.keywords = Array.isArray(b.keywords)?b.keywords:
+    (typeof b.keywords==='string'?b.keywords.split(/[,，、\s]+/).filter(Boolean):[]);
+  return b;
+}
+function taskProgress(t){
+  if(!t.subtasks || !t.subtasks.length) return Number(t.progress||0);
+  const done=t.subtasks.filter(x=>x.done).length;
+  return Math.round(done/t.subtasks.length*100);
+}
+function refreshTaskProgress(t){
+  t.progress=taskProgress(t); return t.progress;
+}
+function dueClass(date){
+  if(!date) return '';
+  const d=new Date(date+'T23:59:59'), now=new Date();
+  const days=Math.ceil((d-now)/86400000);
+  return days<0?'overdue':days<=3?'soon':'';
+}
+
+function save(){localStorage.setItem(KEY,JSON.stringify(data));renderAll()}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function pct(n){return Math.max(0,Math.min(100,Number(n)||0))}
+const modal=document.getElementById("modal");
+function showModal(title,body){document.getElementById("modalTitle").textContent=title;document.getElementById("modalBody").innerHTML=body;modal.classList.add("open")}
+function closeModal(){modal.classList.remove("open")}
+function openBook(){showModal("添加书籍",`<form class="form" onsubmit="addBook(event)">
+<label>书名<input name="title" required></label><div class="form two-col"><label>作者<input name="author"></label><label>出版信息<input name="publisher" placeholder="出版社 / 年份"></label></div>
+<label>标签<input name="tags" placeholder="城市史,海防史"></label><label>当前进度（%）<input name="progress" type="number" min="0" max="100" value="0"></label>
+<button class="btn primary">保存</button></form>`)}
+function addBook(e){e.preventDefault();let f=new FormData(e.target);data.books.unshift({id:Date.now(),title:f.get("title"),author:f.get("author"),publisher:f.get("publisher"),pub:"",status:"在读",progress:pct(f.get("progress")),rating:0,review:"",tags:f.get("tags"),quotes:[]});closeModal();save()}
+function openQuote(){if(!data.books.length)return openBook();showModal("添加阅读摘录",`<form class="form" onsubmit="addQuote(event)"><label>书籍<select name="book">${data.books.map(b=>`<option value="${b.id}">${esc(b.title)}</option>`).join("")}</select></label><div class="form two-col"><label>页码<input name="page" placeholder="p. 48"></label><label>批注<input name="note" placeholder="这句话为什么重要？"></label></div><label>摘录原文<textarea name="text" required></textarea></label><button class="btn primary">保存摘录</button></form>`)}
+function addQuote(e){e.preventDefault();let f=new FormData(e.target),b=data.books.find(x=>x.id==f.get("book"));b.quotes=b.quotes||[];b.quotes.unshift({text:f.get("text"),page:f.get("page"),note:f.get("note")});closeModal();save()}
+function openTask(){showModal("添加任务",`<form class="form" onsubmit="addTask(event)"><div class="form two-col"><label>类型<select name="type"><option>学习</option><option>工作</option><option>研究</option></select></label><label>DDL<input name="due" type="date" required></label></div><label>任务名称<input name="title" required></label><label>拆解步骤<textarea name="steps" placeholder="例如：确定问题；搜集史料；整理；写作"></textarea></label><label>当前进度（%）<input name="progress" type="number" min="0" max="100" value="0"></label><button class="btn primary">保存</button></form>`)}
+function addTask(e){e.preventDefault();let f=new FormData(e.target);data.tasks.unshift({id:Date.now(),type:f.get("type"),title:f.get("title"),due:f.get("due"),progress:pct(f.get("progress")),steps:f.get("steps"),done:false});closeModal();save()}
+function openProject(){showModal("新建研究专题",`<form class="form" onsubmit="addProject(event)"><label>专题名称<input name="name" required></label><label>研究说明<textarea name="desc"></textarea></label><button class="btn primary">创建专题</button></form>`)}
+function addProject(e){e.preventDefault();let f=new FormData(e.target);data.projects.unshift({id:Date.now(),name:f.get("name"),desc:f.get("desc"),count:0});closeModal();save()}
+function openSource(){
+if(!data.projects.length){showModal("需要先建立研究专题",`<div class="empty">当前没有研究专题。请先创建一个专题，再向专题中添加史料。</div><button class="btn primary" onclick="closeModal();openProject()">＋ 新建研究专题</button>`);return}
+showModal("添加专题史料",`<form class="form" onsubmit="addSource(event)"><div class="form two-col"><label>时间<input name="date" placeholder="如：1561 / 乾隆三十年"></label><label>所属专题<select name="project" required>${data.projects.length?data.projects.map(p=>`<option>${esc(p.name)}</option>`).join(""):'<option value="">请先新建研究专题</option>'}</select></label></div><label>史料名称<input name="title" required></label><label>来源<input name="source" placeholder="书名、卷次、档案号等"></label><label>原文 / 摘录<textarea name="text" required></textarea></label><label>研究批注<textarea name="note"></textarea></label><button class="btn primary">保存史料</button></form>`)}
+function addSource(e){e.preventDefault();let f=new FormData(e.target);data.sources.unshift({id:Date.now(),date:f.get("date"),project:f.get("project"),title:f.get("title"),source:f.get("source"),text:f.get("text"),note:f.get("note")});let p=data.projects.find(x=>x.name===f.get("project"));if(p)p.count++;closeModal();save()}
+function renderAll(){renderHome();renderBooks();renderTasks();renderResearch();renderAnalytics()}
+function renderHome(){
+document.getElementById("kBooks").textContent=data.books.filter(b=>b.status==="在读").length;
+document.getElementById("kTasks").textContent=data.tasks.filter(t=>t.progress>=100).length;
+document.getElementById("kSources").textContent=data.sources.length;document.getElementById("kProjects").textContent=data.projects.length;
+document.getElementById("homeTasks").innerHTML=data.tasks.slice(0,4).map(t=>`<div class="item"><div class="item-row"><div><h4>${esc(t.title)}</h4><span class="tag">${esc(t.type)}</span><span class="meta">DDL ${esc(t.due)}</span></div><b>${pct(t.progress)}%</b></div><div class="progress"><i style="width:${pct(t.progress)}%"></i></div></div>`).join("")||'<div class="empty">暂无任务</div>';
+document.getElementById("homeBooks").innerHTML=data.books.slice(0,4).map(b=>`<div class="item"><div class="item-row"><h4>${esc(b.title)}</h4><span>${pct(b.progress)}%</span></div><div class="meta">${esc(b.author||"未知作者")}</div><div class="progress"><i style="width:${pct(b.progress)}%"></i></div></div>`).join("")||'<div class="empty">暂无书籍</div>';
+document.getElementById("homeSources").innerHTML=data.sources.slice(0,4).map(s=>`<div class="tl"><strong>${esc(s.date)} · ${esc(s.project)}</strong><p>${esc(s.title)}｜${esc(s.source)}</p></div>`).join("")||'<div class="empty">暂无史料</div>';
+let done=data.tasks.filter(t=>t.progress>=100).length, total=data.tasks.length, avg=data.books.length?Math.round(data.books.reduce((a,b)=>a+pct(b.progress),0)/data.books.length):0;
+document.getElementById("homeRhythm").innerHTML=`<div class="meta">任务完成率</div><div class="bar" style="margin:8px 0 15px"><span style="width:${total?done/total*100:0}%"></span></div><div class="meta">整体阅读进度</div><div class="bar" style="margin:8px 0 15px"><span style="width:${avg}%"></span></div><p class="meta">工作台强调“输入—整理—执行—输出”的连续记录，而不是单纯的待办清单。</p>`;
+}
+function renderBooks(){
+let q=(document.getElementById("bookSearch")?.value||"").toLowerCase();
+let bs=data.books.filter(b=>(b.title+" "+b.author+" "+b.tags).toLowerCase().includes(q));
+document.getElementById("bookList").innerHTML=bs.map(b=>`<div class="item"><div class="item-row"><div><h4>${esc(b.title)}</h4><div class="meta">${esc(b.author)} · ${esc(b.publisher)}</div></div><span class="tag">${esc(b.status)}</span></div><div class="progress"><i style="width:${pct(b.progress)}%"></i></div><div class="meta" style="margin-top:6px">${pct(b.progress)}% · ${b.rating?`评分 ${b.rating}/5`:"尚未评分"}</div>${b.review?`<p class="meta">${esc(b.review)}</p>`:""}${(b.quotes||[]).slice(0,2).map(q=>`<div class="quote">“${esc(q.text)}”<br><span class="meta">${esc(q.page)} · ${esc(q.note)}</span></div>`).join("")}</div>`).join("")||'<div class="empty">没有匹配的书籍。</div>';
+let finished=data.books.filter(b=>b.progress>=100).length, quotes=data.books.reduce((n,b)=>n+(b.quotes||[]).length,0);
+document.getElementById("bookSummary").innerHTML=`<p class="meta">总书目</p><h2 style="font-family:Georgia,serif">${data.books.length}</h2><p class="meta">已读 ${finished} · 在读 ${data.books.length-finished}</p><hr style="border:0;border-top:1px solid var(--line)"><p class="meta">摘录总数</p><h2 style="font-family:Georgia,serif">${quotes}</h2><p class="meta">建议以后增加“专题关联”“关键词”“阅读时间”字段，让阅读记录可以直接反哺研究。</p>`;
+}
+function renderTasks(){
+let f=document.getElementById("taskFilter")?.value||"all", ts=data.tasks.filter(t=>f==="all"||t.type===f);
+document.getElementById("taskList").innerHTML=ts.map(t=>`<div class="item"><div class="item-row"><div><h4>${esc(t.title)}</h4><span class="tag">${esc(t.type)}</span><span class="meta">DDL ${esc(t.due)}</span></div><b>${pct(t.progress)}%</b></div><div class="progress"><i style="width:${pct(t.progress)}%"></i></div><p class="meta">${esc(t.steps||"暂无拆解步骤")}</p></div>`).join("")||'<div class="empty">暂无任务</div>';
+renderCalendar();
+}
+function renderCalendar(){
+let now=new Date(), y=now.getFullYear(),m=now.getMonth(), first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+let html='<div class="calendar">'+["日","一","二","三","四","五","六"].map(x=>`<div class="cal-head">${x}</div>`).join("");
+for(let i=0;i<first;i++)html+="<div></div>";
+for(let d=1;d<=days;d++){let ds=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`, hit=data.tasks.filter(t=>t.due===ds);html+=`<div class="day ${d===now.getDate()?"today":""}"><b>${d}</b>${hit.length?`<span class="dot"></span><small>${hit.length}件</small>`:""}</div>`}html+="</div><p class='meta' style='margin-top:10px'>红点表示该日存在任务 DDL。</p>";document.getElementById("calendar").innerHTML=html;
+}
+function renderResearch(){
+document.getElementById("projectList").innerHTML=data.projects.map(p=>`<div class="item"><div class="item-row"><h4>${esc(p.name)}</h4><span class="tag">${p.count} 条史料</span></div><p class="meta">${esc(p.desc||"")}</p></div>`).join("")||'<div class="empty">暂无专题</div>';
+document.getElementById("sourceTimeline").innerHTML=[...data.sources].sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(s=>`<div class="tl"><strong>${esc(s.date)} · ${esc(s.project)}</strong><p>${esc(s.title)}｜${esc(s.source)}</p></div>`).join("")||'<div class="empty">暂无史料</div>';
+document.getElementById("sourceTable").innerHTML=data.sources.map(s=>`<tr><td>${esc(s.date)}</td><td>${esc(s.project)}</td><td><b>${esc(s.title)}</b><br><span class="meta">${esc(s.text)}</span></td><td>${esc(s.source)}</td><td>${esc(s.note)}</td></tr>`).join("");
+}
+function chartBars(el,items){document.getElementById(el).innerHTML=items.map(x=>`<div style="margin:0 0 14px"><div class="item-row"><span class="meta">${esc(x[0])}</span><b>${x[1]}</b></div><div class="bar" style="margin-top:6px"><span style="width:${x[2]}%"></span></div></div>`).join("")}
+function renderAnalytics(){
+let total=data.books.length, read=data.books.filter(b=>b.progress>=100).length, avg=total?Math.round(data.books.reduce((a,b)=>a+pct(b.progress),0)/total):0;
+chartBars("readingChart",[["已读",read,total?read/total*100:0],["在读",total-read,total?((total-read)/total)*100:0],["平均进度",avg,avg]]);
+let st={学习:data.tasks.filter(t=>t.type==="学习").length,工作:data.tasks.filter(t=>t.type==="工作").length,研究:data.tasks.filter(t=>t.type==="研究").length};
+let mx=Math.max(1,...Object.values(st));chartBars("taskChart",Object.entries(st).map(x=>[x[0],x[1],x[1]/mx*100]));
+let mxs=Math.max(1,...data.projects.map(p=>p.count));chartBars("researchChart",data.projects.map(p=>[p.name,p.count,p.count/mxs*100]));
+}
+function exportData(){let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));a.download="史地研习台-数据.json";a.click()}
+document.getElementById("importFile").addEventListener("change",e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{data=JSON.parse(r.result);save();alert("导入成功")}catch{alert("文件格式错误")}};r.readAsText(f)});
+function resetData(){if(confirm("恢复示例数据会覆盖当前浏览器中的数据，确定吗？")){data=JSON.parse(JSON.stringify(demo));save()}}
+document.querySelectorAll("[data-section]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById(b.dataset.section).classList.add("active");document.querySelectorAll("[data-section]").forEach(x=>x.classList.toggle("active",x===b));let meta={home:["研究总览","把阅读、研究资料、任务与研究成果放进同一张工作台。"],reading:["阅读记录","记录书目、进度、摘录、页码、批注与阅读评价。"],schedule:["日程记录","把学习、工作与研究任务拆解到可执行的时间节点。"],research:["研究资料","在研究专题下整理史料、摘录、来源与时间轴。"],analytics:["数据可视化","观察阅读、任务与研究积累的长期变化。"],settings:["数据与设置","管理本地数据，并为未来云端同步预留接口。"]};document.getElementById("pageTitle").textContent=meta[b.dataset.section][0];document.getElementById("pageDesc").textContent=meta[b.dataset.section][1];window.scrollTo(0,0)}));
+document.getElementById("quickAdd").onclick=()=>openTask();
+document.getElementById("bookSearch").addEventListener("input",renderBooks);
+document.getElementById("taskFilter").addEventListener("change",renderTasks);
+renderAll();
+</script>
+</body>
+</html>
