@@ -42,18 +42,18 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
     <button class="active" data-section="home">⌂ 总览</button>
     <button data-section="reading">▤ 阅读记录</button>
     <button data-section="schedule">◷ 日程记录</button>
-    <button data-section="research">⌘ 研究资料</button>
+    <button data-section="research">⌘ 历史研究</button>
     <button data-section="analytics">◒ 数据可视化</button>
     <button data-section="settings">⚙ 数据与设置</button>
   </nav>
 </aside>
 <main class="main">
   <div class="mobile-nav" id="mobileNav">
-    <button data-section="home">总览</button><button data-section="reading">阅读</button><button data-section="schedule">日程</button><button data-section="research">研究资料</button><button data-section="analytics">统计</button><button data-section="settings">设置</button>
+    <button data-section="home">总览</button><button data-section="reading">阅读</button><button data-section="schedule">日程</button><button data-section="research">研究</button><button data-section="analytics">统计</button><button data-section="settings">设置</button>
   </div>
   <header class="topbar">
-    <div class="title"><h2 id="pageTitle">研究总览</h2><p id="pageDesc">把阅读、研究资料、任务与研究成果放进同一张工作台。</p></div>
-    <div class="actions"><button class="btn primary" id="quickAdd">＋ 快速记录</button></div>
+    <div class="title"><h2 id="pageTitle">研究总览</h2><p id="pageDesc">把阅读、史料、任务与研究成果放进同一张工作台。</p></div>
+    <div class="actions"><span id="syncStatus" class="meta">云同步：未登录</span><button class="btn" id="authButton" onclick="openAuth()">登录 / 注册</button><button class="btn primary" id="quickAdd">＋ 快速记录</button></div>
   </header>
 
   <section class="section active" id="home">
@@ -84,9 +84,9 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
   </section>
 
   <section class="section" id="research">
-    <div class="toolbar"><div><button class="btn primary" onclick="openProject()">＋ 新建专题</button><button class="btn" onclick="openSource()">＋ 添加专题史料</button></div></div>
-    <div class="grid two"><div class="card"><h3>研究专题</h3><div id="projectList" class="list"></div></div><div class="card"><h3>专题史料时间轴</h3><div id="sourceTimeline" class="timeline"></div></div></div>
-    <div class="card" style="margin-top:16px"><h3>专题史料库</h3><div style="overflow:auto"><table><thead><tr><th>时间</th><th>专题</th><th>史料</th><th>来源</th><th>备注</th></tr></thead><tbody id="sourceTable"></tbody></table></div></div>
+    <div class="toolbar"><div><button class="btn primary" onclick="openProject()">＋ 新建专题</button><button class="btn" onclick="openSource()">＋ 添加史料</button></div></div>
+    <div class="grid two"><div class="card"><h3>史料专题</h3><div id="projectList" class="list"></div></div><div class="card"><h3>史料时间轴</h3><div id="sourceTimeline" class="timeline"></div></div></div>
+    <div class="card" style="margin-top:16px"><h3>史料摘录库</h3><div style="overflow:auto"><table><thead><tr><th>时间</th><th>专题</th><th>史料</th><th>来源</th><th>备注</th></tr></thead><tbody id="sourceTable"></tbody></table></div></div>
   </section>
 
   <section class="section" id="analytics">
@@ -99,54 +99,133 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
   </section>
 
   <section class="section" id="settings">
-    <div class="card"><h3>本地数据</h3><p class="meta">当前原型使用浏览器 localStorage 保存数据。适合先体验信息架构；正式版本建议接入云端数据库，实现手机、平板、电脑同步。</p><div class="actions" style="margin-top:12px"><button class="btn" onclick="exportData()">导出 JSON</button><button class="btn" onclick="document.getElementById('importFile').click()">导入 JSON</button><button class="btn" onclick="resetData()">恢复示例数据</button><input id="importFile" type="file" accept=".json" hidden></div></div>
+    <div class="card"><h3>云端同步</h3><p class="meta">登录后，工作台数据会保存到 Supabase，并可在 Mac、iPad、iPhone 等设备间同步。浏览器仍会保留一份本地缓存。</p><div id="accountInfo" class="item" style="margin-top:12px"><div class="meta">当前状态：未登录</div></div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="openAuth()" id="settingsAuthBtn">登录 / 注册</button><button class="btn" onclick="syncNow()">立即同步</button><button class="btn" onclick="logout()">退出登录</button></div></div>
+    <div class="card" style="margin-top:16px"><h3>数据管理</h3><p class="meta">导出与导入用于备份或迁移数据。重置会清空当前工作台数据，不会删除 Supabase 账号。</p><div class="actions" style="margin-top:12px"><button class="btn" onclick="exportData()">导出 JSON</button><button class="btn" onclick="document.getElementById('importFile').click()">导入 JSON</button><button class="btn" onclick="resetData()">清空工作台</button><input id="importFile" type="file" accept=".json" hidden></div></div>
   </section>
 </main>
 </div>
 
+<div class="modal" id="authModal"><div class="modal-box"><div class="modal-head"><h3 id="authTitle" style="margin:0">登录 / 注册</h3><button class="close" onclick="closeAuth()">×</button></div><div id="authBody"></div></div></div>
+
 <div class="modal" id="modal"><div class="modal-box"><div class="modal-head"><h3 id="modalTitle" style="margin:0"></h3><button class="close" onclick="closeModal()">×</button></div><div id="modalBody"></div></div></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const KEY="history_geo_workbench_v1";
-const demo={
- books:[],
- tasks:[],
- projects:[],
- sources:[]
-}
-const INIT_KEY="history_geo_workbench_initialized_v2";
-let data;
-if(!sessionStorage.getItem(INIT_KEY)){
-  localStorage.removeItem(KEY);
-  sessionStorage.setItem(INIT_KEY,"1");
-}
-data=JSON.parse(localStorage.getItem(KEY)||"null")||JSON.parse(JSON.stringify(demo));
+const SUPABASE_URL="https://lahrfdtraarzbucozfpy.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_wG36jJMp-jb-BwBeX-yRw_6FKalebT";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 
-function esc(v){
-  return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-function readingMeta(b){
-  b.topics = Array.isArray(b.topics)?b.topics:(b.topic?[b.topic]:[]);
-  b.keywords = Array.isArray(b.keywords)?b.keywords:
-    (typeof b.keywords==='string'?b.keywords.split(/[,，、\s]+/).filter(Boolean):[]);
-  return b;
-}
-function taskProgress(t){
-  if(!t.subtasks || !t.subtasks.length) return Number(t.progress||0);
-  const done=t.subtasks.filter(x=>x.done).length;
-  return Math.round(done/t.subtasks.length*100);
-}
-function refreshTaskProgress(t){
-  t.progress=taskProgress(t); return t.progress;
-}
-function dueClass(date){
-  if(!date) return '';
-  const d=new Date(date+'T23:59:59'), now=new Date();
-  const days=Math.ceil((d-now)/86400000);
-  return days<0?'overdue':days<=3?'soon':'';
-}
+const KEY="history_geo_workbench_cloud_v1";
+const EMPTY_DATA={books:[],tasks:[],projects:[],sources:[],reminders:[]};
+let data=JSON.parse(localStorage.getItem(KEY)||"null")||JSON.parse(JSON.stringify(EMPTY_DATA));
+let currentSession=null;
+let cloudSaveTimer=null;
+let cloudLoading=false;
 
-function save(){localStorage.setItem(KEY,JSON.stringify(data));renderAll()}
+function setSyncStatus(text){
+  const el=document.getElementById("syncStatus");
+  if(el) el.textContent="云同步："+text;
+}
+function updateAccountUI(){
+  const logged=!!currentSession;
+  const email=currentSession?.user?.email||"";
+  const btn=document.getElementById("authButton");
+  const sbtn=document.getElementById("settingsAuthBtn");
+  const info=document.getElementById("accountInfo");
+  if(btn) btn.textContent=logged?"账户已登录":"登录 / 注册";
+  if(sbtn) sbtn.textContent=logged?"重新登录":"登录 / 注册";
+  if(info) info.innerHTML=logged?`<div class="meta">当前账号：<b>${esc(email)}</b></div><div class="meta" style="margin-top:5px">数据同步状态：${esc(document.getElementById("syncStatus")?.textContent?.replace("云同步：","")||"已登录")}</div>`:'<div class="meta">当前状态：未登录。数据仅保存在本机，登录后即可开启云端同步。</div>';
+}
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(data));
+  renderAll();
+  if(currentSession && !cloudLoading) scheduleCloudSave();
+}
+function scheduleCloudSave(){
+  clearTimeout(cloudSaveTimer);
+  setSyncStatus("等待保存");
+  cloudSaveTimer=setTimeout(saveCloud,700);
+}
+async function saveCloud(){
+  if(!currentSession)return;
+  setSyncStatus("保存中…");
+  const {error}=await supabaseClient.from("workbench_data").upsert({user_id:currentSession.user.id,data,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+  if(error){console.error(error);setSyncStatus("保存失败");alert("云端保存失败："+error.message);return;}
+  setSyncStatus("已同步");
+  updateAccountUI();
+}
+async function loadCloud(){
+  if(!currentSession)return;
+  cloudLoading=true;
+  setSyncStatus("读取中…");
+  const {data:row,error}=await supabaseClient.from("workbench_data").select("data,updated_at").eq("user_id",currentSession.user.id).maybeSingle();
+  if(error){cloudLoading=false;setSyncStatus("读取失败");console.error(error);alert("云端读取失败："+error.message);return;}
+  if(row?.data){
+    data={...JSON.parse(JSON.stringify(EMPTY_DATA)),...row.data};
+    localStorage.setItem(KEY,JSON.stringify(data));
+    renderAll();
+    setSyncStatus("已同步");
+  }else{
+    await saveCloud();
+  }
+  cloudLoading=false;
+  updateAccountUI();
+}
+async function syncNow(){
+  if(!currentSession){openAuth();return;}
+  await saveCloud();
+}
+function openAuth(){
+  const logged=!!currentSession;
+  document.getElementById("authTitle").textContent=logged?"账户信息":"登录 / 注册";
+  document.getElementById("authBody").innerHTML=logged?`<div class="form"><div class="item"><b>${esc(currentSession.user.email||"")}</b><div class="meta" style="margin-top:5px">云端同步已开启。</div></div><button class="btn" onclick="closeAuth()">关闭</button><button class="btn" onclick="logout()">退出登录</button></div>`:`<form class="form" onsubmit="signIn(event)"><label>邮箱<input name="email" type="email" required autocomplete="email"></label><label>密码<input name="password" type="password" required minlength="6" autocomplete="current-password"></label><div class="actions"><button class="btn primary" type="submit">登录</button><button class="btn" type="button" onclick="signUp()">注册账号</button></div><p class="meta">注册后如果 Supabase 开启了邮箱确认，请先完成邮箱验证，再回来登录。</p></form>`;
+  document.getElementById("authModal").classList.add("open");
+}
+function closeAuth(){document.getElementById("authModal").classList.remove("open");}
+async function signIn(e){
+  e.preventDefault();
+  const f=new FormData(e.target);
+  const {data:res,error}=await supabaseClient.auth.signInWithPassword({email:f.get("email"),password:f.get("password")});
+  if(error){alert("登录失败："+error.message);return;}
+  currentSession=res.session;
+  closeAuth();
+  await loadCloud();
+  updateAccountUI();
+}
+async function signUp(){
+  const form=document.querySelector("#authBody form");
+  if(!form)return;
+  const f=new FormData(form);
+  const {data:res,error}=await supabaseClient.auth.signUp({email:f.get("email"),password:f.get("password")});
+  if(error){alert("注册失败："+error.message);return;}
+  if(res.session){
+    currentSession=res.session;closeAuth();await loadCloud();updateAccountUI();
+  }else{
+    alert("注册成功。请检查邮箱并完成验证，然后再登录。");
+  }
+}
+async function logout(){
+  const {error}=await supabaseClient.auth.signOut();
+  if(error){alert("退出登录失败："+error.message);return;}
+  currentSession=null;
+  setSyncStatus("未登录");
+  updateAccountUI();
+  closeAuth();
+}
+supabaseClient.auth.onAuthStateChange(async (_event,session)=>{
+  currentSession=session;
+  updateAccountUI();
+  if(session && !cloudLoading) await loadCloud();
+  if(!session) setSyncStatus("未登录");
+});
+(async function initCloud(){
+  const {data:res}=await supabaseClient.auth.getSession();
+  currentSession=res.session;
+  updateAccountUI();
+  if(currentSession) await loadCloud();
+  else setSyncStatus("未登录");
+})();
+
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function pct(n){return Math.max(0,Math.min(100,Number(n)||0))}
 const modal=document.getElementById("modal");
@@ -163,9 +242,7 @@ function openTask(){showModal("添加任务",`<form class="form" onsubmit="addTa
 function addTask(e){e.preventDefault();let f=new FormData(e.target);data.tasks.unshift({id:Date.now(),type:f.get("type"),title:f.get("title"),due:f.get("due"),progress:pct(f.get("progress")),steps:f.get("steps"),done:false});closeModal();save()}
 function openProject(){showModal("新建研究专题",`<form class="form" onsubmit="addProject(event)"><label>专题名称<input name="name" required></label><label>研究说明<textarea name="desc"></textarea></label><button class="btn primary">创建专题</button></form>`)}
 function addProject(e){e.preventDefault();let f=new FormData(e.target);data.projects.unshift({id:Date.now(),name:f.get("name"),desc:f.get("desc"),count:0});closeModal();save()}
-function openSource(){
-if(!data.projects.length){showModal("需要先建立研究专题",`<div class="empty">当前没有研究专题。请先创建一个专题，再向专题中添加史料。</div><button class="btn primary" onclick="closeModal();openProject()">＋ 新建研究专题</button>`);return}
-showModal("添加专题史料",`<form class="form" onsubmit="addSource(event)"><div class="form two-col"><label>时间<input name="date" placeholder="如：1561 / 乾隆三十年"></label><label>所属专题<select name="project" required>${data.projects.length?data.projects.map(p=>`<option>${esc(p.name)}</option>`).join(""):'<option value="">请先新建研究专题</option>'}</select></label></div><label>史料名称<input name="title" required></label><label>来源<input name="source" placeholder="书名、卷次、档案号等"></label><label>原文 / 摘录<textarea name="text" required></textarea></label><label>研究批注<textarea name="note"></textarea></label><button class="btn primary">保存史料</button></form>`)}
+function openSource(){showModal("添加史料",`<form class="form" onsubmit="addSource(event)"><div class="form two-col"><label>时间<input name="date" placeholder="如：1561 / 乾隆三十年"></label><label>专题<select name="project">${data.projects.map(p=>`<option>${esc(p.name)}</option>`).join("")}</select></label></div><label>史料名称<input name="title" required></label><label>来源<input name="source" placeholder="书名、卷次、档案号等"></label><label>原文 / 摘录<textarea name="text" required></textarea></label><label>研究批注<textarea name="note"></textarea></label><button class="btn primary">保存史料</button></form>`)}
 function addSource(e){e.preventDefault();let f=new FormData(e.target);data.sources.unshift({id:Date.now(),date:f.get("date"),project:f.get("project"),title:f.get("title"),source:f.get("source"),text:f.get("text"),note:f.get("note")});let p=data.projects.find(x=>x.name===f.get("project"));if(p)p.count++;closeModal();save()}
 function renderAll(){renderHome();renderBooks();renderTasks();renderResearch();renderAnalytics()}
 function renderHome(){
@@ -211,8 +288,8 @@ let mxs=Math.max(1,...data.projects.map(p=>p.count));chartBars("researchChart",d
 }
 function exportData(){let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));a.download="史地研习台-数据.json";a.click()}
 document.getElementById("importFile").addEventListener("change",e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{data=JSON.parse(r.result);save();alert("导入成功")}catch{alert("文件格式错误")}};r.readAsText(f)});
-function resetData(){if(confirm("恢复示例数据会覆盖当前浏览器中的数据，确定吗？")){data=JSON.parse(JSON.stringify(demo));save()}}
-document.querySelectorAll("[data-section]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById(b.dataset.section).classList.add("active");document.querySelectorAll("[data-section]").forEach(x=>x.classList.toggle("active",x===b));let meta={home:["研究总览","把阅读、研究资料、任务与研究成果放进同一张工作台。"],reading:["阅读记录","记录书目、进度、摘录、页码、批注与阅读评价。"],schedule:["日程记录","把学习、工作与研究任务拆解到可执行的时间节点。"],research:["研究资料","在研究专题下整理史料、摘录、来源与时间轴。"],analytics:["数据可视化","观察阅读、任务与研究积累的长期变化。"],settings:["数据与设置","管理本地数据，并为未来云端同步预留接口。"]};document.getElementById("pageTitle").textContent=meta[b.dataset.section][0];document.getElementById("pageDesc").textContent=meta[b.dataset.section][1];window.scrollTo(0,0)}));
+function resetData(){if(confirm("确定清空当前工作台吗？此操作会同时在云端同步清空。")){data=JSON.parse(JSON.stringify(EMPTY_DATA));save()}}
+document.querySelectorAll("[data-section]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById(b.dataset.section).classList.add("active");document.querySelectorAll("[data-section]").forEach(x=>x.classList.toggle("active",x===b));let meta={home:["研究总览","把阅读、史料、任务与研究成果放进同一张工作台。"],reading:["阅读记录","记录书目、进度、摘录、页码、批注与阅读评价。"],schedule:["日程记录","把学习、工作与研究任务拆解到可执行的时间节点。"],research:["历史研究","建立专题化史料库，并以时间轴组织材料。"],analytics:["数据可视化","观察阅读、任务与研究积累的长期变化。"],settings:["数据与设置","管理本地数据，并为未来云端同步预留接口。"]};document.getElementById("pageTitle").textContent=meta[b.dataset.section][0];document.getElementById("pageDesc").textContent=meta[b.dataset.section][1];window.scrollTo(0,0)}));
 document.getElementById("quickAdd").onclick=()=>openTask();
 document.getElementById("bookSearch").addEventListener("input",renderBooks);
 document.getElementById("taskFilter").addEventListener("change",renderTasks);
