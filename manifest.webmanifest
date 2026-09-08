@@ -1,0 +1,9 @@
+{
+  "name":"史地研习台",
+  "short_name":"史地研习台",
+  "start_url":"./index.html",
+  "display":"standalone",
+  "background_color":"#f7f7f5",
+  "theme_color":"#1f2937",
+  "lang":"zh-CN"
+}
